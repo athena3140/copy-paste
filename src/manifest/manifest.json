@@ -1,0 +1,17 @@
+{
+  "name": "Copy / Paste",
+  "short_name": "Copy / Paste",
+  "start_url": "/clipboard",
+  "description": "Easily cross-platform share images and text.",
+  "theme_color": "#3f4650",
+  "background_color": "#3f4650", 
+  "orientation": "portrait-primary",
+  "display": "standalone",
+  "icons": [
+      {
+         "src": "../images/favicon.png",
+         "sizes": "512x512",
+         "type": "image/png"
+      }
+   ]
+}

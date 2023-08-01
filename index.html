@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<meta name="theme-color" content="#3f4650" />
+		<meta rel="theme-color" href="#3f4650" />
+		<link rel="manifest" href="./src/manifest/manifest.json" />
+		<link rel="icon" href="./src/images/favicon.png" />
+		<link rel="apple-touch-icon" href="./src/images/favicon.png" />
+		<!-- Link Connections -->
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins:wght@300&display=swap"
+			rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+		<link href="./src/css/mdb.css" rel="stylesheet" />
+		<link rel="stylesheet" href="./src/css/style.css" />
+		<title>Copy / Paste</title>
+	</head>
+	<body>
+		<div class="bubble"></div>
+		<div class="alert alert-warning position-fixed text-center"></div>
+		<div class="container-fluid h-100">
+			<div class="drag-over hide">
+				<div>Drop Files here</div>
+			</div>
+			<div class="row INPUT py-4 d-flex sticky-top justify-content-center">
+				<div class="col-lg-10">
+					<form id="createForm">
+						<div class="input-group">
+							<button
+								onclick="navigator.clipboard.readText().then((a) => {$('#content').val(a).focus().addClass('active').blur();})"
+								type="button"
+								class="btn btn-primary shadow-0 fs-5">
+								<i class="fa-regular fa-clipboard"></i>
+							</button>
+							<label
+								id="labelImg"
+								for="img"
+								class="btn d-flex align-items-center btn-warning shadow-0 fs-5">
+								<i class="fa-solid fa-file-image"></i>
+							</label>
+							<input id="img" type="file" style="display: none" accept="image/*" />
+							<div class="form-outline">
+								<textarea
+									autocomplete="off"
+									type="text"
+									id="content"
+									name="content"
+									rows="1"
+									class="form-control text-white form-control-lg"></textarea>
+								<label
+									class="form-label text-white user-select-none"
+									for="content"
+									style="background-color: #3f4650"
+									>Paste Clipboard</label
+								>
+							</div>
+							<button class="btn btn-outline-light" type="submit" data-mdb-ripple-color="white">
+								Submit
+							</button>
+						</div>
+					</form>
+					<small class="mt-2">
+						File selected: <span id="fileSelectNotice"></span> <i class="fa-solid fa-xmark"></i>
+					</small>
+					<div id="error" class="border-1 mt-2 px-3 py-2 rounded">
+						Please fill
+						<a onclick="document.getElementById('labelImg').click()" href="javascript:void(0)">
+							Image
+						</a>
+						<small>&sol;</small>
+						<a onclick="document.getElementById('content').focus()" href="javascript:void(0)">
+							Text
+						</a>
+					</div>
+					<button
+						class="btn btn-info d-none d-lg-flex reload position-absolute d-flex justify-content-center align-items-center fs-4"
+						style="right: 10px; top: 50%; transform: translate(0, -50%)">
+						<i class="fa-solid fa-rotate"></i>
+					</button>
+				</div>
+			</div>
+			<div class="row entries py-3 d-flex justify-content-center overflow-y-scroll">
+				<div class="row gap-3 justify-content-center" id="entries"></div>
+				<button
+					class="btn fw-bold btn-danger deleteAll fs-4 mt-5"
+					data-mdb-toggle="modal"
+					data-mdb-target="#modal"
+					style="width: fit-content; display: none">
+					Delete All<i class="fa-solid ms-2 fa-trash-can"></i>
+				</button>
+			</div>
+			<button
+				class="btn btn-info d-flex d-lg-none reload position-absolute d-flex justify-content-center align-items-center fs-4"
+				style="right: 10px; width: fit-content; top: 85%; z-index: 100">
+				<i class="fa-solid fa-rotate"></i>
+			</button>
+		</div>
+		<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header border-0">
+						<h5 class="modal-title fw-bold" id="modalCenterTitle">Delete all clipboard data ?</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-mdb-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">This will delete all the data from the database.</div>
+					<div class="modal-footer border-0">
+						<button type="button" class="btn btn-danger finalDeleteAll">Ok</button>
+						<button type="button" class="btn btn-warning" data-mdb-dismiss="modal">Cancle</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="./src/js/mdb.js"></script>
+	<script src="./src/js/script.js"></script>
+</html>
