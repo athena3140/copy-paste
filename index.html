@@ -21,7 +21,7 @@
 	</head>
 	<body>
 		<div class="bubble"></div>
-		<div class="alert alert-warning position-fixed text-center"></div>
+		<div class="alert alert-danger position-fixed text-center m-0"></div>
 		<div class="container-fluid h-100">
 			<div class="drag-over hide">
 				<div>Drop Files here</div>
@@ -86,7 +86,7 @@
 			<div class="row entries py-3 d-flex justify-content-center overflow-y-scroll">
 				<div class="row gap-3 justify-content-center" id="entries"></div>
 				<button
-					class="btn fw-bold btn-danger deleteAll fs-4 mt-5"
+					class="btn fw-bold btn-danger deleteAllBtn fs-4 mt-5"
 					data-mdb-toggle="modal"
 					data-mdb-target="#modal"
 					style="width: fit-content; display: none">
@@ -112,7 +112,7 @@
 					</div>
 					<div class="modal-body">This will delete all the data from the database.</div>
 					<div class="modal-footer border-0">
-						<button type="button" class="btn btn-danger finalDeleteAll">Ok</button>
+						<button type="button" class="btn btn-danger DeleteAll">Ok</button>
 						<button type="button" class="btn btn-warning" data-mdb-dismiss="modal">Cancle</button>
 					</div>
 				</div>

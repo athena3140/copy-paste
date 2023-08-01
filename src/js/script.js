@@ -1,28 +1,43 @@
 $(document).ready(function () {
 	let socket;
-	if (window.location.href == "https://localhost/clipboard/") {
-		socket = new WebSocket("ws://localhost:8000");
-	} else {
-		socket = new WebSocket(`ws://${window.location.host}:8000`);
+	alrtSoc = true;
+
+	function createWebSocket() {
+		if (window.location.href == "https://localhost/clipboard/") {
+			socket = new WebSocket("ws://localhost:8000");
+		} else {
+			socket = new WebSocket(`ws://${window.location.host}:8000`);
+		}
+
+		socket.onopen = function () {
+			console.log("WebSocket connection established.");
+			if (alrtSoc) {
+				alertErr("Live Features activated");
+				alrtSoc = false;
+			}
+		};
+
+		socket.onmessage = function () {
+			loadClipboardEntries();
+		};
+
+		socket.onclose = function () {
+			console.log("WebSocket connection closed.");
+		};
+
+		socket.onerror = function (error) {
+			alertErr("Can not use live features");
+			console.error("WebSocket error:", error);
+		};
 	}
+	createWebSocket();
+	document.addEventListener("visibilitychange", function () {
+		if (document.visibilityState === "visible") {
+			createWebSocket();
+		}
+	});
 
-	socket.onopen = function () {
-		console.log("WebSocket connection established.");
-		alertErr("Live Features activated");
-	};
-
-	socket.onmessage = function () {
-		loadClipboardEntries();
-	};
-
-	socket.onclose = function () {
-		console.log("WebSocket connection closed.");
-	};
-
-	socket.onerror = function (error) {
-		alertErr("Can not use live features");
-		console.error("WebSocket error:", error);
-	};
+	//
 	$("#createForm").submit(function (event) {
 		event.preventDefault();
 
@@ -145,13 +160,13 @@ $(document).ready(function () {
 										response[i].content.includes('"')
 											? "rows=2"
 											: `${
-													response[i].content.split(" ").length > 70
+													response[i].content.length > 70
 														? "rows='5'"
 														: "rows='2'"
 											  }`
-									} class="form-control bg-white" readonly > ${
+									} class="form-control bg-white" readonly>${
 											response[i].content
-									  } </textarea> 
+									  }</textarea> 
 								</div>
 								<button
 									type="button" data-clipboard-id="${response[i].clipboard_id}"
@@ -174,10 +189,10 @@ $(document).ready(function () {
 							<span>Try add <a onclick="document.getElementById('labelImg').click()" href="javascript:void(0)">Image</a>/<a onclick="document.getElementById('content').focus()" href="javascript:void(0)">Text</a></span>
 						</div>`
 					);
-					$(".deleteAll").css({ display: "none" });
+					$(".deleteAllBtn").css({ display: "none" });
 				} else {
 					$("#entries").html(entries);
-					$(".deleteAll").css({ display: "block" });
+					$(".deleteAllBtn").css({ display: "block" });
 				}
 				callback();
 			},
@@ -219,9 +234,10 @@ $(document).ready(function () {
 		}, 10);
 
 		$("button.copy").click(function () {
-			navigator.clipboard.writeText($(this).parent().find("input,textarea").val()).catch(function (error) {
-				alert("Failed to copy value to clipboard: ", error);
-			});
+			var copyText = $(this).parent().find("input,textarea");
+			copyText.select();
+			document.execCommand("copy");
+			window.getSelection().removeAllRanges();
 		});
 
 		$("button.download").click(function () {
@@ -249,7 +265,7 @@ $(document).ready(function () {
 				},
 			});
 		});
-		$(".finalDeleteAll")
+		$(".DeleteAll")
 			.off()
 			.click(function () {
 				$.ajax({
@@ -388,9 +404,9 @@ $(document).ready(function () {
 	}
 
 	function alertErr(text) {
-		$(".alert-warning.position-fixed").html(text).addClass("active");
+		$(".alert-danger.position-fixed").html(text).addClass("active");
 		setTimeout(() => {
-			$(".alert-warning.position-fixed").removeClass("active");
+			$(".alert-danger.position-fixed").removeClass("active");
 		}, 4000);
 	}
 
