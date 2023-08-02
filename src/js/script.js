@@ -300,15 +300,12 @@ $(document).ready(function () {
 		$(".reload i").addClass("reloadActive");
 		loadClipboardEntries();
 	});
-	function isValidBase64URL(str) {
-		const regex = /^data:image\/[a-z]+;base64,[A-Za-z0-9+/]+=*$/;
-		return regex.test(str);
-	}
 	$("#img").on("change", function () {
 		if (this.files && this.files[0]) {
 			$("#fileSelectNotice").parent("small").css("display", "block").find("span").text(this.files[0].name);
 			$("#error").fadeOut();
 			$("#content").prop("disabled", true);
+			$("#imgPreview").attr("src", URL.createObjectURL(this.files[0]));
 		} else {
 			$("#fileSelectNotice").parent("small").css("display", "none").find("span").text("");
 			$("#content").prop("disabled", false);
@@ -323,18 +320,6 @@ $(document).ready(function () {
 	window.onresize = function () {
 		$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
 	};
-
-	function handleBubbleMovement(event) {
-		$(".bubble").removeClass("bubble-disable");
-		var bubble = $(".bubble");
-		setTimeout(function () {
-			bubble.css({
-				left: event.clientX - bubble.width() / 2 + "px",
-				top: event.clientY - bubble.height() / 2 + "px",
-			});
-		}, 25);
-	}
-
 	if (window.matchMedia("(pointer: fine)").matches) {
 		$(document).on("mousemove", handleBubbleMovement);
 	} else {
@@ -392,6 +377,10 @@ $(document).ready(function () {
 		}
 	});
 
+	if (!navigator.clipboard) {
+		$(".fa-clipboard").parent().remove();
+	}
+	//
 	function validateImage(file, callback) {
 		var img = new Image();
 		img.onload = function () {
@@ -408,6 +397,21 @@ $(document).ready(function () {
 		setTimeout(() => {
 			$(".alert-danger.position-fixed").removeClass("active");
 		}, 4000);
+	}
+
+	function handleBubbleMovement(event) {
+		$(".bubble").removeClass("bubble-disable");
+		var bubble = $(".bubble");
+		setTimeout(function () {
+			bubble.css({
+				left: event.clientX - bubble.width() / 2 + "px",
+				top: event.clientY - bubble.height() / 2 + "px",
+			});
+		}, 25);
+	}
+	function isValidBase64URL(str) {
+		const regex = /^data:image\/[a-z]+;base64,[A-Za-z0-9+/]+=*$/;
+		return regex.test(str);
 	}
 
 	function socketNotice() {

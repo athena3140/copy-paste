@@ -1,5 +1,6 @@
 body {
 	height: 100vh !important;
+	overflow: hidden;
 	background-color: #282c34;
 	color: #d9d9d9;
 	font-family: "Poppins", sans-serif;
@@ -83,12 +84,11 @@ img {
 
 #error {
 	display: none;
-	border-color: #f5c9d1;
 	color: #842e3c;
 	background-color: #f8dbe0;
 }
 
-small.mt-2 {
+small.mt-3 {
 	display: none;
 }
 
@@ -232,8 +232,11 @@ textarea#content {
 .modal-backdrop {
 	--mdb-backdrop-opacity: 0.75;
 }
-.modal-backdrop.show {
-	opacity: var(--mdb-backdrop-opacity);
+
+#imgPreview {
+	width: 40px;
+	height: 40px;
+	object-fit: scale-down;
 }
 
 @-webkit-keyframes spin {

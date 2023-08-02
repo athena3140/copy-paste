@@ -27,7 +27,7 @@
 				<div>Drop Files here</div>
 			</div>
 			<div class="row INPUT py-4 d-flex sticky-top justify-content-center">
-				<div class="col-lg-10">
+				<div class="col-lg-10 position-relative">
 					<form id="createForm">
 						<div class="input-group">
 							<button
@@ -63,8 +63,10 @@
 							</button>
 						</div>
 					</form>
-					<small class="mt-2">
-						File selected: <span id="fileSelectNotice"></span> <i class="fa-solid fa-xmark"></i>
+					<small class="mt-3">
+						<img id="imgPreview" /> File selected:
+						<span id="fileSelectNotice"></span>
+						<i class="fa-solid fa-xmark"></i>
 					</small>
 					<div id="error" class="border-1 mt-2 px-3 py-2 rounded">
 						Please fill
@@ -78,7 +80,7 @@
 					</div>
 					<button
 						class="btn btn-info d-none d-lg-flex reload position-absolute d-flex justify-content-center align-items-center fs-4"
-						style="right: 10px; top: 50%; transform: translate(0, -50%)">
+						style="right: -75px; top: 0">
 						<i class="fa-solid fa-rotate"></i>
 					</button>
 				</div>
