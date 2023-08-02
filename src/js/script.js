@@ -316,10 +316,17 @@ $(document).ready(function () {
 		$("#img").val(null).trigger("change");
 	});
 
-	$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
-	window.onresize = function () {
+	(() => {
 		$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
-	};
+		window.onresize = function () {
+			$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
+		};
+		let resizeObserver = new ResizeObserver(() => {
+			$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
+		});
+		resizeObserver.observe($("#content")[0]);
+	})();
+
 	if (window.matchMedia("(pointer: fine)").matches) {
 		$(document).on("mousemove", handleBubbleMovement);
 	} else {
