@@ -154,11 +154,13 @@ input,
 textarea {
 	border-radius: 0 !important;
 }
-textarea:not(textarea[rows="10"]) {
+textarea:not(textarea[rows="5"]) {
 	resize: none !important;
 }
 textarea#content {
 	background-color: transparent !important;
+	resize: vertical !important;
+	transition: none !important;
 }
 
 .drag-over {
