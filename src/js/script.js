@@ -414,7 +414,7 @@ $(document).ready(function () {
 				left: event.clientX - bubble.width() / 2 + "px",
 				top: event.clientY - bubble.height() / 2 + "px",
 			});
-		}, 25);
+		}, 42);
 	}
 	function isValidBase64URL(str) {
 		const regex = /^data:image\/[a-z]+;base64,[A-Za-z0-9+/]+=*$/;
