@@ -43,7 +43,7 @@
 								<i class="fa-solid fa-file-image"></i>
 							</label>
 							<input id="img" type="file" style="display: none" accept="image/*" />
-							<div class="form-outline">
+							<div class="form-outline position-relative">
 								<textarea
 									autocomplete="off"
 									type="text"
@@ -54,9 +54,10 @@
 								<label
 									class="form-label text-white user-select-none"
 									for="content"
-									style="background-color: #3f4650"
-									>Paste Clipboard</label
-								>
+									style="background-color: #3f4650">
+									Paste Clipboard
+								</label>
+								<div class="ctrlK">Ctrl <span>K</span></div>
 							</div>
 							<button class="btn btn-outline-light" type="submit" data-mdb-ripple-color="white">
 								Submit
@@ -97,7 +98,7 @@
 			</div>
 			<button
 				class="btn btn-info d-flex d-lg-none reload position-absolute d-flex justify-content-center align-items-center fs-4"
-				style="right: 10px; width: fit-content; top: 85%; z-index: 100">
+				style="right: 10px; top: 85%; z-index: 100">
 				<i class="fa-solid fa-rotate"></i>
 			</button>
 		</div>

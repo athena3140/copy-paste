@@ -15,7 +15,8 @@ body {
 	background-size: 50px 50px, 50px 50px, 25px 25px, 25px 25px;
 }
 body::-webkit-scrollbar,
-textarea::-webkit-scrollbar {
+textarea::-webkit-scrollbar,
+.base64img::-webkit-scrollbar {
 	display: none;
 }
 .container input,
@@ -26,6 +27,34 @@ textarea {
 .reloadActive {
 	-webkit-animation: spin 1s infinite;
 	animation: spin 1s infinite;
+}
+
+.reload {
+	width: 42px;
+	height: 42px;
+}
+
+#content:focus ~ .ctrlK {
+	opacity: 0;
+}
+
+.ctrlK {
+	font-family: "Poppins", sans-serif;
+	background-color: #272c4d;
+	padding: 1px 4px;
+	border-radius: 5px;
+	width: fit-content;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-45%);
+	right: 8px;
+	font-size: 0.8rem;
+	user-select: none;
+	transition: 0.3s;
+}
+
+.ctrlK span {
+	font-size: 1.1rem;
 }
 
 button.imgCap {
@@ -154,13 +183,15 @@ input,
 textarea {
 	border-radius: 0 !important;
 }
-textarea:not(textarea[rows="5"]) {
-	resize: none !important;
-}
 textarea#content {
 	background-color: transparent !important;
 	resize: vertical !important;
 	transition: none !important;
+}
+textarea {
+	resize: vertical !important;
+	transition: none !important;
+	overflow: auto;
 }
 
 .drag-over {

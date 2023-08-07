@@ -1,43 +1,46 @@
 $(document).ready(function () {
-	let socket;
-	alrtSoc = true;
+	// web socket [enable live datas update]
+	(() => {
+		let socket;
+		alrtSoc = true;
 
-	function createWebSocket() {
-		if (window.location.href == "https://localhost/clipboard/") {
-			socket = new WebSocket("ws://localhost:8000");
-		} else {
-			socket = new WebSocket(`ws://${window.location.host}:8000`);
-		}
-
-		socket.onopen = function () {
-			console.log("WebSocket connection established.");
-			if (alrtSoc) {
-				alertErr("Live Features activated");
-				alrtSoc = false;
+		function createWebSocket() {
+			if (window.location.href == "https://localhost/clipboard/") {
+				socket = new WebSocket("ws://localhost:8000");
+			} else {
+				socket = new WebSocket(`ws://${window.location.host}:8000`);
 			}
-		};
 
-		socket.onmessage = function () {
-			loadClipboardEntries();
-		};
+			socket.onopen = function () {
+				console.log("WebSocket connection established.");
+				if (alrtSoc) {
+					alertErr("Live Features activated");
+					alrtSoc = false;
+				}
+			};
 
-		socket.onclose = function () {
-			console.log("WebSocket connection closed.");
-		};
+			socket.onmessage = function () {
+				loadClipboardEntries();
+			};
 
-		socket.onerror = function (error) {
-			alertErr("Can not use live features");
-			console.error("WebSocket error:", error);
-		};
-	}
-	createWebSocket();
-	document.addEventListener("visibilitychange", function () {
-		if (document.visibilityState === "visible") {
-			createWebSocket();
+			socket.onclose = function () {
+				console.log("WebSocket connection closed.");
+			};
+
+			socket.onerror = function (error) {
+				alertErr("Can not use live features");
+				console.error("WebSocket error:", error);
+			};
 		}
-	});
+		createWebSocket();
+		document.addEventListener("visibilitychange", function () {
+			if (document.visibilityState === "visible") {
+				createWebSocket();
+			}
+		});
+	})();
 
-	//
+	// Data Creation
 	$("#createForm").submit(function (event) {
 		event.preventDefault();
 
@@ -92,6 +95,7 @@ $(document).ready(function () {
 		}
 	});
 
+	//data fetching
 	function loadClipboardEntries() {
 		$.ajax({
 			url: "./api.php",
@@ -203,6 +207,7 @@ $(document).ready(function () {
 	}
 	loadClipboardEntries();
 
+	//function to be call after data fetching
 	function callback() {
 		setTimeout(() => {
 			$("input:not(input.link),textarea,.alert-warning.position-fixed").hover(
@@ -213,7 +218,6 @@ $(document).ready(function () {
 					$(".bubble").removeClass("bubble-text");
 				}
 			);
-
 			$("input.link,button,label[for='img'],i.fa-xmark,a[href='javascript:void(0)']").hover(
 				function () {
 					$(".bubble").addClass("bubble-active");
@@ -291,11 +295,14 @@ $(document).ready(function () {
 		}, 1000);
 	}
 
-	$("input#content").bind("paste", function () {
-		setTimeout(() => {
-			$(this).parents("form").submit();
-		}, 10);
+	//features for the application
+	$("body").keydown(function (e) {
+		if (e.ctrlKey && e.key === "k") {
+			e.preventDefault();
+			$("#content").focus();
+		}
 	});
+
 	$(".reload").click(function () {
 		$(".reload i").addClass("reloadActive");
 		loadClipboardEntries();
@@ -318,6 +325,9 @@ $(document).ready(function () {
 
 	(() => {
 		$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
+		$("textarea").each(function () {
+			$(this).css({ minHeight: $(this).outerHeight() });
+		});
 		window.onresize = function () {
 			$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
 		};
@@ -387,7 +397,11 @@ $(document).ready(function () {
 	if (!navigator.clipboard) {
 		$(".fa-clipboard").parent().remove();
 	}
-	//
+	if (navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+		$(".ctrlK").detach();
+	}
+
+	//fuctions that are need for the application
 	function validateImage(file, callback) {
 		var img = new Image();
 		img.onload = function () {
@@ -416,6 +430,7 @@ $(document).ready(function () {
 			});
 		}, 42);
 	}
+
 	function isValidBase64URL(str) {
 		const regex = /^data:image\/[a-z]+;base64,[A-Za-z0-9+/]+=*$/;
 		return regex.test(str);
