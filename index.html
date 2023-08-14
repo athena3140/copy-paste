@@ -31,10 +31,10 @@
 					<form id="createForm">
 						<div class="input-group">
 							<button
-								onclick="navigator.clipboard.readText().then((a) => {$('#content').val(a).focus().addClass('active').blur();})"
+								onclick="navigator.clipboard.readText().then((e) => {$('#content').val(e).focus()})"
 								type="button"
 								class="btn btn-primary shadow-0 fs-5">
-								<i class="fa-regular fa-clipboard"></i>
+								<i class="fa-regular fa-paste"></i>
 							</button>
 							<label
 								id="labelImg"
@@ -46,7 +46,6 @@
 							<div class="form-outline position-relative">
 								<textarea
 									autocomplete="off"
-									type="text"
 									id="content"
 									name="content"
 									rows="1"
@@ -57,7 +56,10 @@
 									style="background-color: #3f4650">
 									Paste Clipboard
 								</label>
-								<div class="ctrlK">Ctrl <span>K</span></div>
+								<div class="ctrlK">Ctrl + <span>K</span></div>
+								<div onclick="$('#content').focus().val('')" class="X">
+									<i class="fa-solid fa-xmark"></i>
+								</div>
 							</div>
 							<button class="btn btn-outline-light" type="submit" data-mdb-ripple-color="white">
 								Submit
@@ -70,14 +72,19 @@
 						<i class="fa-solid fa-xmark"></i>
 					</small>
 					<div id="error" class="border-1 mt-2 px-3 py-2 rounded">
-						Please fill
-						<a onclick="document.getElementById('labelImg').click()" href="javascript:void(0)">
-							Image
-						</a>
-						<small>&sol;</small>
-						<a onclick="document.getElementById('content').focus()" href="javascript:void(0)">
-							Text
-						</a>
+						<span>
+							Please fill
+							<a
+								onclick="document.getElementById('labelImg').click()"
+								href="javascript:void(0)">
+								Image
+							</a>
+							<small>&sol;</small>
+							<a onclick="document.getElementById('content').focus()" href="javascript:void(0)">
+								Text
+							</a>
+						</span>
+						<button onclick="$('#error').fadeOut();" type="button" class="btn-close"></button>
 					</div>
 					<button
 						class="btn btn-info d-none d-lg-flex reload position-absolute d-flex justify-content-center align-items-center fs-4"
@@ -86,43 +93,56 @@
 					</button>
 				</div>
 			</div>
+			<!-- Data Entries -->
 			<div class="row entries py-3 d-flex justify-content-center overflow-y-scroll">
 				<div class="row gap-3 justify-content-center" id="entries"></div>
-				<button
-					class="btn fw-bold btn-danger deleteAllBtn fs-4 mt-5"
-					data-mdb-toggle="modal"
-					data-mdb-target="#modal"
-					style="width: fit-content; display: none">
-					Delete All<i class="fa-solid ms-2 fa-trash-can"></i>
-				</button>
+				<div class="d-flex deleteBtnGroup gap-3 justify-content-center flex-wrap mt-5">
+					<button data-modal-type="data" class="btn fw-bold btn-danger px-3 all fs-6">
+						Delete All<i class="fa-solid ms-2 fa-trash-can"></i>
+					</button>
+					<button data-modal-type="text" class="btn fw-bold btn-danger px-3 text fs-6">
+						Delete Texts<i class="fa-solid ms-2 fa-text-slash"></i>
+					</button>
+					<button data-modal-type="image" class="btn fw-bold btn-danger px-3 img fs-6">
+						Delete Images<i class="fa-regular ms-2 fa-image"></i>
+					</button>
+				</div>
 			</div>
-			<button
-				class="btn btn-info d-flex d-lg-none reload position-absolute d-flex justify-content-center align-items-center fs-4"
-				style="right: 10px; top: 85%; z-index: 100">
-				<i class="fa-solid fa-rotate"></i>
-			</button>
 		</div>
-		<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
+		<!-- modal  -->
+		<div class="modal fade" tabindex="-1">
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
 					<div class="modal-header border-0">
-						<h5 class="modal-title fw-bold" id="modalCenterTitle">Delete all clipboard data ?</h5>
-						<button
-							type="button"
-							class="btn-close"
-							data-mdb-dismiss="modal"
-							aria-label="Close"></button>
+						<h5 class="modal-title fw-bold">
+							Delete all
+							<q
+								><span
+									class="text-warning text-capitalize"
+									style="letter-spacing: 1px"></span
+							></q>
+							from Database ?
+						</h5>
+						<button class="btn-close-white btn-close" data-mdb-dismiss="modal"></button>
 					</div>
-					<div class="modal-body">This will delete all the data from the database.</div>
+					<div class="modal-body">
+						This will delete all the
+						<q
+							><span
+								class="text-warning text-capitalize fw-bold"
+								style="letter-spacing: 1px"></span
+						></q>
+						from the Database.
+					</div>
 					<div class="modal-footer border-0">
-						<button type="button" class="btn btn-danger DeleteAll">Ok</button>
+						<button type="button" class="btn btn-danger modalAccept">Ok</button>
 						<button type="button" class="btn btn-warning" data-mdb-dismiss="modal">Cancle</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</body>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="./src/js/jquery.js"></script>
 	<script src="./src/js/mdb.js"></script>
 	<script src="./src/js/script.js"></script>
 </html>

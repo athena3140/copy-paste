@@ -1,44 +1,44 @@
 $(document).ready(function () {
 	// web socket [enable live datas update]
-	(() => {
-		let socket;
-		alrtSoc = true;
+	var socket;
+	alrtSoc = true;
 
-		function createWebSocket() {
-			if (window.location.href == "https://localhost/clipboard/") {
-				socket = new WebSocket("ws://localhost:8000");
-			} else {
-				socket = new WebSocket(`ws://${window.location.host}:8000`);
-			}
-
-			socket.onopen = function () {
-				console.log("WebSocket connection established.");
-				if (alrtSoc) {
-					alertErr("Live Features activated");
-					alrtSoc = false;
-				}
-			};
-
-			socket.onmessage = function () {
-				loadClipboardEntries();
-			};
-
-			socket.onclose = function () {
-				console.log("WebSocket connection closed.");
-			};
-
-			socket.onerror = function (error) {
-				alertErr("Can not use live features");
-				console.error("WebSocket error:", error);
-			};
+	function createWebSocket() {
+		if (window.location.href == "https://localhost/clipboard/") {
+			socket = new WebSocket("ws://localhost:8000");
+		} else {
+			socket = new WebSocket(`ws://${window.location.host}:8000`);
 		}
-		createWebSocket();
-		document.addEventListener("visibilitychange", function () {
-			if (document.visibilityState === "visible") {
-				createWebSocket();
+
+		socket.onopen = function () {
+			console.log("WebSocket connection established.");
+			if (alrtSoc) {
+				setTimeout(() => {
+					alertErr("Live Features activated.");
+				}, 1000);
+				alrtSoc = false;
 			}
-		});
-	})();
+		};
+
+		socket.onmessage = function () {
+			loadClipboardEntries();
+		};
+
+		socket.onclose = function () {
+			console.log("WebSocket connection closed.");
+		};
+
+		socket.onerror = function (error) {
+			alertErr("Can not use live features");
+			console.error("WebSocket error:", error);
+		};
+	}
+	createWebSocket();
+	document.addEventListener("visibilitychange", function () {
+		if (document.visibilityState === "visible") {
+			createWebSocket();
+		}
+	});
 
 	// Data Creation
 	$("#createForm").submit(function (event) {
@@ -53,28 +53,29 @@ $(document).ready(function () {
 			reader.readAsDataURL($("#img")[0].files[0]);
 			reader.onload = function () {
 				file = reader.result;
-				sendAjax(file);
+				sendAjax(file, "image");
 			};
 		} else {
 			if (content.trim() === "") {
 				$("#error").fadeIn();
 			} else {
-				sendAjax(content);
+				sendAjax(content, "text");
 			}
 		}
 
-		function sendAjax(content) {
+		function sendAjax(content, type) {
 			$.ajax({
 				url: "./api.php",
 				method: "POST",
 				data: {
 					content: content,
+					type: type,
 				},
 				dataType: "json",
-				success: function (response) {
+				success: function () {
 					$("#error").fadeOut();
 					$("#img").val(null).trigger("change");
-					$("#content").val("").blur().trigger("change");
+					$("#content").val("").blur().trigger("input");
 					loadClipboardEntries();
 					socketNotice();
 				},
@@ -87,7 +88,7 @@ $(document).ready(function () {
 						alertErr(
 							"Error: File is too large or an unexpected error occurred. See console for details."
 						);
-						console.log("%c" + xhr.responseText, "color: #73510d; background-color: #fbf1dc;");
+						console.log("%c" + xhr.responseText, "color: #d9534f;");
 						$("#img").val(null).trigger("change");
 					}
 				},
@@ -102,87 +103,6 @@ $(document).ready(function () {
 			method: "GET",
 			dataType: "json",
 			success: function (response) {
-				var entries = "";
-				for (var i = 0; i < response.length; i++) {
-					entries += `
-               ${
-				isValidBase64URL(response[i].content)
-					? `<div class="col-lg-10 col-md-8 row justify-content-center">
-						<div class="card col-lg-6 position-relative p-0">
-							<img data-image-id="${response[i].clipboard_id}"
-								src="${response[i].content}"
-								class="img-fluid base64img  card-header p-0 border-0" />
-							<div class="img-gradient d-flex justify-content-between">
-								<button
-									type="button"
-									class="btn btn-sm fs-5 rounded-0 start-0 btn-primary download shadow-0 btn-sm fs-5">
-									<i class="fa-solid fa-download"></i>
-								</button>
-								<button data-clipboard-id="${response[i].clipboard_id}"
-									type=" button"
-									class="end-0 btn btn-sm fs-5 rounded-0 btn-danger delete shadow-0 btn-sm fs-5">
-									<i class="fa-solid fa-trash"></i>
-								</button>
-							</div>
-						</div>
-					</div>`
-					: `<div class="col-lg-10 col-md-8">
-						<div class="input-group">
-							${
-								response[i].content.includes("http://") ||
-								response[i].content.includes("https://")
-									? `
-									<button type="button" class="btn btn-primary copy shadow-0 btn-sm fs-5">
-									<i class="fa-regular fa-clone"></i>
-								</button>
-								<button type="button" data-link="${response[i].content}"  class="btn link btn-info shadow-0 btn-sm fs-5">
-									<i class="fa-solid fa-link"></i>
-								</button>
-								<div class="form-outline">
-									<input
-										type="text"
-										readonly
-										style="color: blue !important; cursor: pointer"
-										class="text-center form-control link text-decoration-underline text-black form-control-lg"
-										value="${response[i].content}" />
-								</div>
-								<button
-									type="button"
-									data-clipboard-id="${response[i].clipboard_id}"
-									class="btn btn-danger delete  shadow-0 btn-sm fs-5">
-									<i class="fa-solid fa-trash"></i>
-								</button>
-								`
-									: `
-								<button
-									type="button"
-									class="btn btn-primary copy shadow-0 btn-sm fs-5">
-									<i class="fa-regular fa-clone"></i>
-								</button>
-								<div class="form-outline">
-									<textarea ${
-										response[i].content.includes('"')
-											? "rows=2"
-											: `${
-													response[i].content.length > 70
-														? "rows='5'"
-														: "rows='2'"
-											  }`
-									} class="form-control bg-white" readonly>${
-											response[i].content
-									  }</textarea> 
-								</div>
-								<button
-									type="button" data-clipboard-id="${response[i].clipboard_id}"
-									class="btn btn-danger delete shadow-0 btn-sm fs-5">
-									<i class="fa-solid fa-trash"></i>
-								</button>`
-							}
-						</div>
-					</div>`
-			}
-               `;
-				}
 				if (response.status == "not_found") {
 					$("#entries").html(
 						`<div class="alert d-flex flex-column m-0 col-lg-10 alert-warning bg-gradient text-center">
@@ -193,11 +113,61 @@ $(document).ready(function () {
 							<span>Try add <a onclick="document.getElementById('labelImg').click()" href="javascript:void(0)">Image</a>/<a onclick="document.getElementById('content').focus()" href="javascript:void(0)">Text</a></span>
 						</div>`
 					);
-					$(".deleteAllBtn").css({ display: "none" });
+					$(".deleteBtnGroup button").css({ display: "none" });
 				} else {
+					entries = "";
+					for (i = 0; i < response.length; i++) {
+						entries += `${
+							isValidBase64URL(response[i].content)
+								? `
+								<div class="col-lg-10 col-md-8 row justify-content-center">
+									<div class="card col-lg-6 position-relative p-0">
+											<img class="img-fluid base64img card-header p-0 border-0"
+												data-image-id="${response[i].clipboard_id}" src="${response[i].content}" />
+										<div class="img-gradient d-flex justify-content-between">
+											<button type="button" class="btn btn-sm fs-5 rounded-0 start-0 btn-primary download shadow-0 btn-sm fs-5">
+												<i class="fa-solid fa-download"></i>
+											</button>
+											<button data-clipboard-id="${response[i].clipboard_id}" type=" button" class="end-0 btn btn-sm fs-5 rounded-0 btn-danger delete shadow-0 btn-sm fs-5">
+												<i class="fa-solid fa-trash"></i>
+											</button>
+										</div>
+									</div>
+								</div>`
+								: `
+								<div class="col-lg-10 col-md-8">
+									<div class="input-group">
+								<button
+									type="button"
+									class="btn btn-primary copy shadow-0 btn-sm fs-5">
+									<i class="fa-regular fa-copy"></i>
+								</button>
+								<div class="form-outline">
+								${
+									response[i].content.match(
+										/^(http|https|mailto|ftp|tel|file|javascript|data):/
+									)
+										? `
+										<input type="text" readonly class="form-control link text-decoration-underline bg-white form-control-lg"
+										value="${response[i].content}" />
+									`
+										: `<textarea class="form-control bg-white" readonly ${
+												response[i].content.length > 70 ? "rows=5" : "rows=2"
+										  }
+										>${response[i].content}</textarea> `
+								}
+								</div>
+								<button type="button" class="btn btn-danger delete shadow-0 btn-sm fs-5"
+								 	data-clipboard-id="${response[i].clipboard_id}">
+									<i class="fa-solid fa-trash"></i>
+								</button>`
+						}
+						</div>
+					</div>`;
+					}
 					$("#entries").html(entries);
-					$(".deleteAllBtn").css({ display: "block" });
 				}
+				imagesToBlob();
 				callback();
 			},
 			error: function (xhr, status, error) {
@@ -209,6 +179,15 @@ $(document).ready(function () {
 
 	//function to be call after data fetching
 	function callback() {
+		const $entriesTextarea = $("#entries textarea");
+		const $entriesImg = $("#entries img");
+
+		$(".deleteBtnGroup .all").css({
+			display: $entriesTextarea.length > 0 && $entriesImg.length > 0 ? "block" : "none",
+		});
+		$(".deleteBtnGroup .text").css({ display: $entriesTextarea.length > 0 ? "block" : "none" });
+		$(".deleteBtnGroup .img").css({ display: $entriesImg.length > 0 ? "block" : "none" });
+
 		setTimeout(() => {
 			$("input:not(input.link),textarea,.alert-warning.position-fixed").hover(
 				function () {
@@ -269,26 +248,9 @@ $(document).ready(function () {
 				},
 			});
 		});
-		$(".DeleteAll")
-			.off()
-			.click(function () {
-				$.ajax({
-					url: "./api.php?delete_all=true",
-					method: "DELETE",
-					dataType: "json",
-					success: function (s) {
-						loadClipboardEntries();
-						$("#modal").modal("hide");
-						socketNotice();
-					},
-					error: function (xhr, status, error) {
-						alertErr(xhr.responseText);
-					},
-				});
-			});
 
-		$("input.link,button.link").click(function () {
-			window.open($(this).attr("value") || $(this).attr("data-link"));
+		$("input.link").click(function () {
+			window.open($(this).attr("value"));
 		});
 		setTimeout(() => {
 			$(".reload i").removeClass("reloadActive");
@@ -296,33 +258,42 @@ $(document).ready(function () {
 	}
 
 	//features for the application
-	$("body").keydown(function (e) {
-		if (e.ctrlKey && e.key === "k") {
-			e.preventDefault();
-			$("#content").focus();
-		}
+	$(".deleteBtnGroup button").click(function () {
+		$(".modal span.text-warning").html($(this).attr("data-modal-type") + "s");
+		$(".modalAccept").attr("data-delete-type", $(this).attr("data-modal-type"));
+		$(".modal").modal("show");
+	});
+
+	$(".modalAccept").click(function () {
+		$.ajax({
+			url: "./api.php",
+			method: "DELETE",
+			data: {
+				type: $(this).attr("data-delete-type"),
+			},
+			dataType: "json",
+			success: function () {
+				$(".modal").modal("hide");
+				loadClipboardEntries();
+				socketNotice();
+			},
+			error: function (xhr, status, error) {
+				alertErr(xhr.responseText);
+				console.log(xhr.responseText);
+			},
+		});
 	});
 
 	$(".reload").click(function () {
 		$(".reload i").addClass("reloadActive");
 		loadClipboardEntries();
 	});
-	$("#img").on("change", function () {
-		if (this.files && this.files[0]) {
-			$("#fileSelectNotice").parent("small").css("display", "block").find("span").text(this.files[0].name);
-			$("#error").fadeOut();
-			$("#content").prop("disabled", true);
-			$("#imgPreview").attr("src", URL.createObjectURL(this.files[0]));
-		} else {
-			$("#fileSelectNotice").parent("small").css("display", "none").find("span").text("");
-			$("#content").prop("disabled", false);
-		}
-	});
 
 	$("#fileSelectNotice + i.fa-xmark").click(function () {
 		$("#img").val(null).trigger("change");
 	});
 
+	//design control with JS
 	(() => {
 		$(".entries").css("max-height", $(window).outerHeight(true) - $(".INPUT").outerHeight(true));
 		$("textarea").each(function () {
@@ -337,11 +308,6 @@ $(document).ready(function () {
 		resizeObserver.observe($("#content")[0]);
 	})();
 
-	if (window.matchMedia("(pointer: fine)").matches) {
-		$(document).on("mousemove", handleBubbleMovement);
-	} else {
-		$(".bubble").detach();
-	}
 	$(document).on("mouseleave", function () {
 		$(".drag-over").addClass("hide");
 		setTimeout(() => {
@@ -349,20 +315,47 @@ $(document).ready(function () {
 		}, 30);
 	});
 
-	$("#content").keyup(function (e) {
+	$("#content").keydown(function (e) {
 		if (event.ctrlKey && event.key === "Enter") {
 			$("#createForm").submit();
 		}
-		$("#error").fadeOut();
+		if (e.keyCode === 9) {
+			e.preventDefault();
+			var start = this.selectionStart,
+				end = this.selectionEnd;
+			$(this).val($(this).val().substring(0, start) + "\t" + $(this).val().substring(end));
+			this.selectionStart = this.selectionEnd = start + 1;
+		}
 	});
 
-	$("#content").change(function () {
+	$("body").keydown(function (e) {
+		if (e.ctrlKey && e.key === "k") {
+			e.preventDefault();
+			$("#content").is(":focus") ? $("#content").blur() : $("#content").focus();
+		}
+	});
+
+	// disable image while text in #content
+	$("#content").on("input change", function () {
 		if ($(this).val() != "") {
 			$("#img").prop("disabled", true);
 			$("label[for=img]").addClass("disabled");
 		} else {
 			$("#img").prop("disabled", false);
 			$("label[for=img]").removeClass("disabled");
+		}
+	});
+
+	// disable #content while file in #img
+	$("#img").on("change", function () {
+		if (this.files && this.files[0]) {
+			$("#fileSelectNotice").parent("small").css("display", "block").find("span").text(this.files[0].name);
+			$("#error").fadeOut();
+			$("#content").prop("disabled", true);
+			$("#imgPreview").attr("src", URL.createObjectURL(this.files[0]));
+		} else {
+			$("#fileSelectNotice").parent("small").css("display", "none").find("span").text("");
+			$("#content").prop("disabled", false);
 		}
 	});
 
@@ -395,10 +388,15 @@ $(document).ready(function () {
 	});
 
 	if (!navigator.clipboard) {
-		$(".fa-clipboard").parent().remove();
+		$(".fa-paste").parent().remove();
 	}
 	if (navigator.userAgent.match(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
 		$(".ctrlK").detach();
+	}
+	if (window.matchMedia("(pointer: fine)").matches) {
+		$(document).on("mousemove", handleBubbleMovement);
+	} else {
+		$(".bubble").detach();
 	}
 
 	//fuctions that are need for the application
@@ -441,5 +439,15 @@ $(document).ready(function () {
 			action: "entry_created",
 		};
 		socket.send(JSON.stringify(message));
+	}
+
+	function imagesToBlob() {
+		var $image = $(".base64img");
+		if ($image.length > 0) {
+			var imgSrc = $image.attr("src").split(",");
+			var uint8Array = new Uint8Array([...atob(imgSrc[1])].map((c) => c.charCodeAt(0)));
+			var blob = new Blob([uint8Array], { type: imgSrc[0].split(":")[1].split(";")[0] });
+			$image.attr("src", URL.createObjectURL(blob));
+		}
 	}
 });
